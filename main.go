@@ -10,13 +10,21 @@ type User struct {
 	Username string
 }
 
+// IndexViewModel struct
+type IndexViewModel struct {
+	Title string
+	User User
+}
+
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		user := User{Username: "elfgzp"}
 
+		v := IndexViewModel{Title: "Homepage", User:user}
+
 		tpl, _ := template.ParseFiles("templates/index.html")
 
-		tpl.Execute(w, &user)
+		tpl.Execute(w, &v)
 	})
 	http.ListenAndServe(":8888", nil)
 }
