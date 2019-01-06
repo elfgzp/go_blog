@@ -1,10 +1,22 @@
 package main
 
-import "net/http"
+import (
+	"html/template"
+	"net/http"
+)
+
+// User struct
+type User struct {
+	Username string
+}
 
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World"))
+		user := User{Username: "elfgzp"}
+
+		tpl, _ := template.ParseFiles("templates/index.html")
+
+		tpl.Execute(w, &user)
 	})
 	http.ListenAndServe(":8888", nil)
 }
