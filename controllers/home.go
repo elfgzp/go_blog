@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/elfgzp/go_blog/views"
 	"net/http"
 )
@@ -20,6 +19,13 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	templates["index.html"].Execute(w, &v)
 }
 
+func checkLogin(username, password string) bool {
+	if username == "elfgzp" && password == "abc123" {
+		return true
+	}
+	return false
+}
+
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	tpName := "login.html"
 	vop := views.LoginViewModelOp{}
@@ -32,6 +38,23 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		username := r.Form.Get("username")
 		password := r.Form.Get("password")
-		fmt.Fprintf(w, "Username: %s Password: %s", username, password)
+
+		if len(username) < 3 {
+			v.AddError("username must longer than 3")
+		}
+
+		if len(password) < 6 {
+			v.AddError("password must longer than 6")
+		}
+
+		if !checkLogin(username, password) {
+			v.AddError("username or password not correct, please input again")
+		}
+
+		if len(v.Errs) > 0 {
+			templates[tpName].Execute(w, &v)
+		} else {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
 	}
 }
