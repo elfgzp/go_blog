@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/elfgzp/go_blog/views"
 	"net/http"
 )
@@ -20,7 +21,17 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "login.html"
 	vop := views.LoginViewModelOp{}
 	v := vop.GetVM()
-	templates["login.html"].Execute(w, &v)
+	if r.Method == http.MethodGet {
+		templates[tpName].Execute(w, &v)
+	}
+
+	if r.Method == http.MethodPost {
+		r.ParseForm()
+		username := r.Form.Get("username")
+		password := r.Form.Get("password")
+		fmt.Fprintf(w, "Username: %s Password: %s", username, password)
+	}
 }
