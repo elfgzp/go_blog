@@ -6,7 +6,6 @@ import (
 	"log"
 )
 
-
 /*
 create database go_blog_db  character set 'utf8mb4' COLLATE utf8mb4_unicode_ci;
  */
@@ -18,4 +17,27 @@ func main() {
 
 	db.DropTableIfExists(models.User{}, models.Post{})
 	db.CreateTable(models.User{}, models.Post{})
+
+	users := []models.User{
+		{
+			Username:     "elfgzp",
+			PasswordHash: models.GeneratePasswordHash("abc123"),
+			Posts: []models.Post{
+				{Body: "Beautiful day in Portland"},
+			},
+		},
+		{
+			Username:     "jerry",
+			PasswordHash: models.GeneratePasswordHash("abc123"),
+			Email:        "jerry@test.com",
+			Posts: []models.Post{
+				{Body: "The Avengers movie was so cool!"},
+				{Body: "Sun shine is beautiful"},
+			},
+		},
+	}
+
+	for _, u := range users {
+		db.Debug().Create(&u)
+	}
 }
