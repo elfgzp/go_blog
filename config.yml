@@ -1,0 +1,7 @@
+mysql:
+  charset: utf8mb4
+  db: go_blog_db
+  host: localhost
+  port: 3306
+  password: root
+  user: root
