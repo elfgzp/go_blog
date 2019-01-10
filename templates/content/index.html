@@ -1,9 +1,9 @@
 {{define "content"}}
-    <h1>Hello, {{.Username}}</h1>
+    <h1>Hello, {{.User.Username}}</h1>
     {{range .Posts}}
         <div>
             <p>
-                {{.Username}} says: <b>{{.Body}}</b>
+                {{.User.Username}} says: <b>{{.Body}}</b>
             </p>
         </div>
     {{end}}
