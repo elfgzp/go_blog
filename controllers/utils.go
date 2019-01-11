@@ -3,10 +3,12 @@ package controllers
 import (
 	"errors"
 	"fmt"
+	"github.com/elfgzp/go_blog/views"
 	"html/template"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 // PopulateTemplates func
@@ -105,3 +107,106 @@ func clearSession(w http.ResponseWriter, r *http.Request) error {
 
 	return nil
 }
+
+// Check functions
+func checkLen(fieldName, fieldValue string, minLen, maxLen int) string {
+	lenField := len(fieldValue)
+
+	if lenField < minLen {
+		return fmt.Sprintf("%s field is too short, less than %d.", fieldName, minLen)
+	}
+
+	if lenField > maxLen {
+		return fmt.Sprintf("%s field is too long, more than %d.", fieldName, maxLen)
+	}
+
+	return ""
+}
+
+func checkUsername(username string) string {
+	return checkLen("Username", username, 3, 20)
+}
+
+func checkPassword(password string) string {
+	return checkLen("Password", password, 6, 50)
+}
+
+func checkEmail(email string) string {
+	if len(email) == 0 {
+		return fmt.Sprintf("Email field is required.")
+	}
+
+	if m, _ := regexp.MatchString(`^([\w\.\_]{2,10})@(\w{1,}).([a-z]{2,4})$`, email); !m {
+		return fmt.Sprintf("Email field is not a valid email.")
+	}
+	return ""
+}
+
+func checkUserPassword(username, password string) string {
+	if !views.CheckLogin(username, password) {
+		return fmt.Sprintf("Username and password is not correct.")
+	}
+	return ""
+}
+
+func checkUserExist(username string) string {
+	if !views.CheckUserExist(username) {
+		return fmt.Sprintf("Username already exist, please choose another username.")
+	}
+	return ""
+}
+
+func checkPwdRepeatMatch(pwd1, pwd2 string) string {
+	if pwd1 != pwd2 {
+		return fmt.Sprintf("2 password does not match.")
+	}
+	return ""
+}
+
+// checkLogin()
+
+func checkLogin(username, password string) []string {
+	var errs []string
+	if errCheck := checkUsername(username); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+
+	if errCheck := checkPassword(password); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+
+	if errCheck := checkUserPassword(username, password); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+
+	return errs
+}
+
+func checkRegister(username, email, pwd1, pwd2 string) []string {
+	var errs []string
+	if errCheck := checkUsername(username); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+
+	if errCheck := checkPassword(pwd1); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+
+	if errCheck := checkPwdRepeatMatch(pwd1, pwd2); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+
+	if errCheck := checkEmail(email); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+	if errCheck := checkUserExist(username); len(errCheck) > 0 {
+		errs = append(errs, errCheck)
+	}
+	return errs
+}
+
+// addUser func
+func addUser(username, password, email string) error {
+	return views.AddUser(username, password, email)
+}
+

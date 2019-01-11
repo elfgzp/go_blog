@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/elfgzp/go_blog/views"
+	"log"
 	"net/http"
 )
 
@@ -12,6 +13,7 @@ type home struct {
 func (h home) registerRoutes() {
 	http.HandleFunc("/", authMiddleware(indexHandler))
 	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/register", registerHandler)
 	http.HandleFunc("/logout", authMiddleware(logoutHandler))
 }
 
@@ -44,21 +46,51 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		username := r.Form.Get("username")
 		password := r.Form.Get("password")
 
-		if len(username) < 3 {
-			v.AddError("username must longer than 3")
-		}
-
-		if len(password) < 6 {
-			v.AddError("password must longer than 6")
-		}
-
-		if !views.CheckLogin(username, password) {
-			v.AddError("username or password not correct, please input again")
-		}
+		errs := checkLogin(username, password)
+		v.AddError(errs...)
 
 		if len(v.Errs) > 0 {
 			templates[tpName].Execute(w, &v)
 		} else {
+			err := setSessionUser(w, r, username)
+			if err != nil {
+				panic(fmt.Errorf("Set session failed with error: %s", err))
+			}
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
+	}
+}
+
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "register.html"
+	vop := views.RegisterViewModelOp{}
+	v := vop.GetVM()
+	if r.Method == http.MethodGet {
+		templates[tpName].Execute(w, &v)
+	}
+
+	if r.Method == http.MethodPost {
+		err := r.ParseForm()
+		if err != nil {
+			panic(fmt.Errorf("ParseForm error: %s", err))
+		}
+
+		username := r.Form.Get("username")
+		email := r.Form.Get("email")
+		pwd1 := r.Form.Get("pwd1")
+		pwd2 := r.Form.Get("pwd2")
+
+		errs := checkRegister(username, email, pwd1, pwd2)
+		v.AddError(errs...)
+
+		if len(v.Errs) > 0 {
+			templates[tpName].Execute(w, &v)
+		} else {
+			if err := addUser(username, pwd1, email); err != nil {
+				log.Println("add User error:", err)
+				w.Write([]byte("Error insert database"))
+				return
+			}
 			err := setSessionUser(w, r, username)
 			if err != nil {
 				panic(fmt.Errorf("Set session failed with error: %s", err))

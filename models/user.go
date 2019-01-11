@@ -26,3 +26,9 @@ func GetUserByUsername(username string) (*User, error) {
 
 	return &user, nil
 }
+
+func AddUser(username, password, email string) error {
+	user := User{Username: username, Email: email}
+	user.SetPassword(password)
+	return db.Create(&user).Error
+}

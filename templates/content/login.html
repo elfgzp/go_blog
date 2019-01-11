@@ -1,5 +1,11 @@
 {{define "content"}}
     <h1>Login</h1>
+    <p>New User? <a href="/register">Click to Register!</a></p>
+    <form action="/login" method="post" name="login">
+        <p><input type="text" name="username" value="" placeholder="Username or Email"></p>
+        <p><input type="password" name="password" value="" placeholder="Password"></p>
+        <p><input type="submit" name="submit" value="Login"></p>
+    </form>
     {{if .Errs}}
         <ul>
             {{range .Errs}}
@@ -7,9 +13,4 @@
             {{end}}
         </ul>
     {{end}}
-    <form action="/login" method="post" name="login">
-        <p><input type="text" name="username" value="" placeholder="Username or Email"></p>
-        <p><input type="password" name="password" value="" placeholder="Password"></p>
-        <p><input type="submit" name="submit" value="Login"></p>
-    </form>
 {{end}}
