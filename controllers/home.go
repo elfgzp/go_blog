@@ -10,15 +10,21 @@ type home struct {
 }
 
 func (h home) registerRoutes() {
-	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/", authMiddleware(indexHandler))
 	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/logout", logoutHandler)
+	http.HandleFunc("/logout", authMiddleware(logoutHandler))
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "index.html"
 	vop := views.IndexViewModelOp{}
-	v := vop.GetVM()
-	templates["index.html"].Execute(w, &v)
+	username, err := getSessionUser(r)
+	if err != nil {
+		panic(fmt.Errorf("IndexHandler getSessionUser error: %s", err))
+	}
+
+	v := vop.GetVM(username)
+	templates[tpName].Execute(w, &v)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {

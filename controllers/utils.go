@@ -97,6 +97,8 @@ func clearSession(w http.ResponseWriter, r *http.Request) error {
 
 	session.Options.MaxAge = -1
 
+	err = session.Save(r, w)
+
 	if err != nil {
 		return err
 	}

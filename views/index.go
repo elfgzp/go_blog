@@ -14,9 +14,10 @@ type IndexViewModelOp struct {
 }
 
 // GetVM func
-func (IndexViewModelOp) GetVM() IndexViewModel {
-	u1, _ := models.GetUserByUsername("jerry")
+func (IndexViewModelOp) GetVM(username string) IndexViewModel {
+	u1, _ := models.GetUserByUsername(username)
 	posts, _ := models.GetPostsByUserID(u1.ID)
 	v := IndexViewModel{BaseViewModel{Title: "Homepage"}, *u1, *posts}
+	v.SetCurrentUser(username)
 	return v
 }
