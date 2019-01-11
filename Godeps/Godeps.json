@@ -9,6 +9,21 @@
 			"Rev": "ccc981bf80385c528a65fbfdd49bf2d8da22aa23"
 		},
 		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.4.0-15-gc45f530",
+			"Rev": "c45f530f8e7fe40f4687eaa50d0c8c5f1b66f9e0"
+		},
+		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Comment": "v1.1.1-9-ge65cf8c",
+			"Rev": "e65cf8c5df817c89aeb47ecb46064e802e2de943"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Comment": "v1.1.3-6-g12bd476",
+			"Rev": "12bd4761fc66ac946e16fcc2a32b1e0b066f6177"
+		},
+		{
 			"ImportPath": "github.com/hashicorp/hcl",
 			"Comment": "v1.0.0-1-g65a6292",
 			"Rev": "65a6292f0157eff210d03ed1bf6c59b190b8b906"
@@ -60,6 +75,11 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
+			"Comment": "v1.9.2-7-g9f1a7f5",
+			"Rev": "9f1a7f53511168c0567b4b4b4f10ab7d21265174"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/gorm/dialects/mysql",
 			"Comment": "v1.9.2-7-g9f1a7f5",
 			"Rev": "9f1a7f53511168c0567b4b4b4f10ab7d21265174"
 		},

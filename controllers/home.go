@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/elfgzp/go_blog/views"
 	"net/http"
 )
@@ -11,19 +12,13 @@ type home struct {
 func (h home) registerRoutes() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/logout", logoutHandler)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	vop := views.IndexViewModelOp{}
 	v := vop.GetVM()
 	templates["index.html"].Execute(w, &v)
-}
-
-func checkLogin(username, password string) bool {
-	if username == "elfgzp" && password == "abc123" {
-		return true
-	}
-	return false
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +30,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		r.ParseForm()
+		err := r.ParseForm()
+		if err != nil {
+			panic(fmt.Errorf("ParseForm error: %s", err))
+		}
+
 		username := r.Form.Get("username")
 		password := r.Form.Get("password")
 
@@ -47,14 +46,26 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			v.AddError("password must longer than 6")
 		}
 
-		if !checkLogin(username, password) {
+		if !views.CheckLogin(username, password) {
 			v.AddError("username or password not correct, please input again")
 		}
 
 		if len(v.Errs) > 0 {
 			templates[tpName].Execute(w, &v)
 		} else {
+			err := setSessionUser(w, r, username)
+			if err != nil {
+				panic(fmt.Errorf("Set session failed with error: %s", err))
+			}
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	}
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	err := clearSession(w, r)
+	if err != nil {
+		panic(fmt.Errorf("Clear session failed with error: %s", err))
+	}
+	http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 }

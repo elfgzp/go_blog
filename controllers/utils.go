@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"errors"
+	"fmt"
 	"html/template"
 	"io/ioutil"
+	"net/http"
 	"os"
 )
 
@@ -52,4 +55,51 @@ func PopulateTemplates() map[string]*template.Template {
 	}
 
 	return result
+}
+
+// session
+func getSessionUser(r *http.Request) (string, error) {
+	var username string
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		return "", err
+	}
+	val := session.Values["user"]
+	fmt.Println("val:", val)
+	username, ok := val.(string)
+	if !ok {
+		return "", errors.New("Can not get session user")
+	}
+	fmt.Println("username:", username)
+	return username, nil
+}
+
+// setSessionUser
+func setSessionUser(w http.ResponseWriter, r *http.Request, username string) error {
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		return err
+	}
+	session.Values["user"] = username
+	err = session.Save(r, w)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// clearSession
+func clearSession(w http.ResponseWriter, r *http.Request) error {
+	session, err := store.Get(r, sessionName)
+	if err != nil {
+		return err
+	}
+
+	session.Options.MaxAge = -1
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
