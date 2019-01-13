@@ -1,10 +1,29 @@
 {{define "content"}}
-    <h1>Hello, {{.CurrentUser}}</h1>
-    {{range .Posts}}
-        <div>
-            <p>
-                {{.User.Username}} says: <b>{{.Body}}</b>
-            </p>
-        </div>
+    <h1>Hello, {{.CurrentUser}}!</h1>
+
+    <form action="/" method="post">
+        <p><textarea name="body" rows="3" cols="80" value="" placeholder="say something..."></textarea></p>
+        <p><input type="submit" name="submit" value="Post"></p>
+    </form>
+
+    {{if .Flash}}
+        <span style="color: red;">[{{.Flash}}]</span>
     {{end}}
+
+    {{range .Posts}}
+        <table>
+            <tr valign="top">
+                <td><img src="{{.User.Avatar}}&s=36"></td>
+                <td><a href="/user/{{.User.Username}}">{{ .User.Username }}</a> says:<br>{{ .Body }}</td>
+            </tr>
+        </table>
+    {{end}}
+
+    {{ if gt .PrevPage 0 }}
+        <a href="/?page={{.PrevPage}}">Newer posts</a>
+    {{ end }}
+
+    {{ if gt .NextPage 0 }}
+        <a href="/?page={{.NextPage}}">Older posts</a>
+    {{ end }}
 {{end}}

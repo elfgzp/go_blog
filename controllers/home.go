@@ -29,12 +29,34 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tpName := "index.html"
 	vop := views.IndexViewModelOp{}
 	username, err := getSessionUser(r)
-	if err != nil {
-		panic(fmt.Errorf("IndexHandler getSessionUser error: %s", err))
+	page := getPage(r)
+
+	if r.Method == http.MethodGet {
+		flash := getFlash(w, r)
+		if err != nil {
+			panic(fmt.Errorf("IndexHandler getSessionUser error: %s", err))
+		}
+
+		v := vop.GetVM(username, flash, page, pageLimit)
+		templates[tpName].Execute(w, &v)
 	}
 
-	v := vop.GetVM(username)
-	templates[tpName].Execute(w, &v)
+	if r.Method == http.MethodPost {
+		_ = r.ParseForm()
+		body := r.Form.Get("body")
+		errMessage := checkLen("Post", body, 1, 180)
+		if errMessage != "" {
+			setFlash(w, r, errMessage)
+		} else {
+			err := views.CreatePost(username, body)
+			if err != nil {
+				log.Println("Add Post error: ", err)
+				w.Write([]byte("Error insert Post in database"))
+				return
+			}
+		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -188,4 +210,3 @@ func UnFollowHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, fmt.Sprintf("/user/%s", pUser), http.StatusSeeOther)
 }
-
