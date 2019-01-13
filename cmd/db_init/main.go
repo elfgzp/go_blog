@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/elfgzp/go_blog/config"
 	"github.com/elfgzp/go_blog/models"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
@@ -22,6 +24,8 @@ func main() {
 		{
 			Username:     "elfgzp",
 			PasswordHash: models.GeneratePasswordHash("abc123"),
+			Email:        "me@elfgzp.com",
+			Avatar:       fmt.Sprintf("%s/%s?d=identicon", config.GravatarURL, models.Md5("me@elfgzp.com")),
 			Posts: []models.Post{
 				{Body: "Beautiful day in Portland"},
 			},
@@ -30,6 +34,7 @@ func main() {
 			Username:     "jerry",
 			PasswordHash: models.GeneratePasswordHash("abc123"),
 			Email:        "jerry@test.com",
+			Avatar:       fmt.Sprintf("%s/%s?d=identicon", config.GravatarURL, models.Md5("jerry@test.com")),
 			Posts: []models.Post{
 				{Body: "The Avengers movie was so cool!"},
 				{Body: "Sun shine is beautiful"},

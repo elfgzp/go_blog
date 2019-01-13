@@ -5,6 +5,7 @@ import "github.com/elfgzp/go_blog/models"
 type ProfileViewModel struct {
 	BaseViewModel
 	Posts       []models.Post
+	Editable    bool
 	ProfileUser models.User
 }
 
@@ -20,6 +21,7 @@ func (ProfileViewModelOp) GetVM(sUser, pUser string) (ProfileViewModel, error) {
 	}
 	posts, _ := models.GetPostsByUserID(u1.ID)
 	v.ProfileUser = *u1
+	v.Editable = sUser == pUser
 	v.Posts = *posts
 	v.SetCurrentUser(sUser)
 	return v, nil

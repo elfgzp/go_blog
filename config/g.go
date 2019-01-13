@@ -5,8 +5,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	GravatarURL string
+)
+
 func init() {
 	projectName := "go_blog"
+	GravatarURL = "https://www.gravatar.com/avatar"
 	getConfig(projectName)
 }
 

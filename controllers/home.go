@@ -17,6 +17,7 @@ func (h home) registerRoutes() {
 	r.HandleFunc("/login", loginHandler)
 	r.HandleFunc("/register", registerHandler)
 	r.HandleFunc("/user/{username}", authMiddleware(profileHandler))
+	r.HandleFunc("/profile_edit", authMiddleware(profileEditHandler))
 	r.HandleFunc("/", authMiddleware(indexHandler))
 
 	http.Handle("/", r)
@@ -118,6 +119,32 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	templates[tpName].Execute(w, &v)
+}
+
+func profileEditHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "profile_edit.html"
+	username, _ := getSessionUser(r)
+	vop := views.ProfileEditViewModelOp{}
+	v := vop.GetVM(username)
+	if r.Method == http.MethodGet {
+		err := templates[tpName].Execute(w, &v)
+		if err != nil {
+			log.Println(err)
+
+		}
+	}
+
+	if r.Method == http.MethodPost {
+		_ = r.ParseForm()
+		aboutMe := r.Form.Get("aboutMe")
+		if err := views.UpdateAboutMe(username, aboutMe); err != nil {
+			log.Println(fmt.Sprintf("Update about me error: %s", err))
+			w.Write([]byte("Error update about me"))
+			return
+		}
+
+		http.Redirect(w, r, fmt.Sprintf("/user/%s", username), http.StatusSeeOther)
+	}
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
