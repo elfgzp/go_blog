@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"github.com/elfgzp/go_blog/views"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
@@ -11,10 +12,14 @@ type home struct {
 }
 
 func (h home) registerRoutes() {
-	http.HandleFunc("/", authMiddleware(indexHandler))
-	http.HandleFunc("/login", loginHandler)
-	http.HandleFunc("/register", registerHandler)
-	http.HandleFunc("/logout", authMiddleware(logoutHandler))
+	r := mux.NewRouter()
+	r.HandleFunc("/logout", authMiddleware(logoutHandler))
+	r.HandleFunc("/login", loginHandler)
+	r.HandleFunc("/register", registerHandler)
+	r.HandleFunc("/user/{username}", authMiddleware(profileHandler))
+	r.HandleFunc("/", authMiddleware(indexHandler))
+
+	http.Handle("/", r)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -98,6 +103,21 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 	}
+}
+
+func profileHandler(w http.ResponseWriter, r *http.Request) {
+	tpName := "profile.html"
+	vars := mux.Vars(r)
+	pUser := vars["username"]
+	sUser, _ := getSessionUser(r)
+	vop := views.ProfileViewModelOp{}
+	v, err := vop.GetVM(sUser, pUser)
+	if err != nil {
+		msg := fmt.Sprintf("user ( %s ) does not exist", pUser)
+		w.Write([]byte(msg))
+		return
+	}
+	templates[tpName].Execute(w, &v)
 }
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {

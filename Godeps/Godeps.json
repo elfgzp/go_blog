@@ -14,6 +14,11 @@
 			"Rev": "c45f530f8e7fe40f4687eaa50d0c8c5f1b66f9e0"
 		},
 		{
+			"ImportPath": "github.com/gorilla/context",
+			"Comment": "v1.1.1-1-g51ce91d",
+			"Rev": "51ce91d2eaddeca0ef29a71d766bb3634dadf729"
+		},
+		{
 			"ImportPath": "github.com/gorilla/securecookie",
 			"Comment": "v1.1.1-9-ge65cf8c",
 			"Rev": "e65cf8c5df817c89aeb47ecb46064e802e2de943"
