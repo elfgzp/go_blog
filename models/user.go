@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/elfgzp/go_blog/config"
 	"log"
 	"time"
@@ -31,6 +32,15 @@ func (u *User) CheckPassword(password string) bool {
 func GetUserByUsername(username string) (*User, error) {
 	var user User
 	if err := db.Where("username=?", username).Find(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func GetUserByEmail(email string) (*User, error) {
+	var user User
+	if err := db.Where("email=?", email).Find(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -68,6 +78,11 @@ func UpdateLastSeen(username string) error {
 
 func UpdateAboutMe(username, text string) error {
 	contents := map[string]interface{}{"about_me": text}
+	return UpdateUserByUsername(username, contents)
+}
+
+func UpdatePassword(username, password string) error  {
+	contents := map[string]interface{}{"PasswordHash": GeneratePasswordHash(password)}
 	return UpdateUserByUsername(username, contents)
 }
 
@@ -166,4 +181,29 @@ func (u *User) IsFollowedByUser(username string) bool {
 func (u *User) CreatePost(body string) error {
 	post := Post{Body: body, UserID: u.ID}
 	return db.Create(&post).Error
+}
+
+func (u *User) GenerateToken() (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": u.Username,
+		"exp":      time.Now().Add(time.Hour * 2).Unix(),
+	})
+	return token.SignedString([]byte("secret"))
+}
+
+func CheckToken(tokenString string) (string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (i interface{}, e error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte("secret"), nil
+	})
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims["username"].(string), nil
+	} else {
+		return "", err
+	}
+
 }

@@ -1,3 +1,5 @@
+server:
+  url: http://127.0.0.1:8808
 mysql:
   charset: utf8mb4
   db: go_blog_db
@@ -5,3 +7,8 @@ mysql:
   port: 3306
   password: root
   user: root
+mail:
+  smtp: smtp.exmail.qq.com
+  smtp-port: 465
+  user: goblog@elfgzp.cn
+  password: Golang123

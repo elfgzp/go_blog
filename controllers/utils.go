@@ -1,11 +1,15 @@
 package controllers
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/elfgzp/go_blog/config"
 	"github.com/elfgzp/go_blog/views"
+	"gopkg.in/gomail.v2"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"regexp"
@@ -243,4 +247,40 @@ func getPage(r *http.Request) int {
 	}
 
 	return page
+}
+
+func sendEmail(target, subject, content string) {
+	server, port, usr, pwd := config.GetSMTPConfig()
+	d := gomail.NewDialer(server, port, usr, pwd)
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", usr)
+	m.SetHeader("To", target)
+	m.SetAddressHeader("Cc",  usr, "admin")
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", content)
+
+	if err := d.DialAndSend(m); err != nil {
+		log.Println("Email Error:", err)
+		return
+	}
+}
+
+func checkResetPasswordRequest(email string) []string {
+	var errs []string
+	exits := views.CheckEmailExist(email)
+	if !exits {
+		errs = append(errs, "Can not find email: ", email )
+	}
+	return errs
+}
+
+func checkResetPassword(pwd1, pwd2 string) []string  {
+	var errs []string
+	err := checkPwdRepeatMatch(pwd1, pwd2)
+	if err != "" {
+		errs = append(errs, err)
+	}
+	return errs
 }

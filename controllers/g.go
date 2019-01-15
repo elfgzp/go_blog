@@ -26,3 +26,4 @@ func init() {
 func Startup() {
 	homeController.registerRoutes()
 }
+

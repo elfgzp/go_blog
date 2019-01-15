@@ -38,4 +38,12 @@
             </tr>
         </table>
     {{end}}
+
+    {{if gt .PrevPage 0}}
+        <a href="/user/{{.ProfileUser.Username}}?page={{.PrevPage}}">Newer posts</a>
+    {{end}}
+    {{if gt .NextPage 0}}
+        <a href="/user/{{.ProfileUser.Username}}?page={{.NextPage}}">Older posts</a>
+    {{end}}
+
 {{end}}
